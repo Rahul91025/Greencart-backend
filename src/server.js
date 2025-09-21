@@ -34,7 +34,7 @@ app.use("/api/simulations", simulationRoutes);
 
 app.use(errorHandler);
 
-app.get('/favicon.ico', (req, res) => res.status(204).end());
+
 
 
 
