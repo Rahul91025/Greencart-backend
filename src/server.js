@@ -17,11 +17,25 @@ connectDB();
 
 const app = express();
 
-// Middlewares
+// ✅ CORS setup
+const allowedOrigins = [
+  "http://localhost:5173", // local frontend (Vite)
+  "http://localhost:3000", // if CRA
+  "https://greencart-frontend-ruby.vercel.app" // deployed frontend
+];
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:3000",
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
 }));
+
+// Middlewares
 app.use(express.json());
 app.use(morgan("dev"));
 
@@ -32,10 +46,15 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/routes", routeRoutes);
 app.use("/api/simulations", simulationRoutes);
 
+// Default root route (for health check)
+app.get("/", (req, res) => {
+  res.send("✅ GreenCart Backend is running!");
+});
+
 // Error handler
 app.use(errorHandler);
 
-// ✅ Start server here
+// ✅ Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
